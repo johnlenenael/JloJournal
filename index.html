@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mini Journal</title>
+<link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Fraunces:ital@1&display=swap" rel="stylesheet">
+<style>
+:root{--desk:#0e1b30;--page:#3d5f8f;--page2:#37578a;--grid:#2f4d7a;--ink:#f3f1ff;--lav:#d9c2ff;--pink:#ff8fb1;--yel:#ffd66b;--paper:#fff7fb}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{background:var(--desk);font-family:Gaegu,'Comic Sans MS',cursive;color:var(--ink);font-size:20px;padding:12px}
+button{font:inherit;cursor:pointer;color:inherit}
+.book{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;border-radius:14px;overflow:hidden;box-shadow:0 20px 50px #0008;min-height:80vh}
+.pg{background-color:var(--page);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:22px 22px;padding:22px;position:relative}
+.pg.r{background-color:var(--page2);border-left:3px solid #0006}
+.nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.nav button{background:#ffffff1c;border:0;border-radius:20px;padding:4px 14px}
+.nav button.on{background:var(--lav);color:#2b2350;font-weight:700}
+.status{margin-left:auto;font-size:15px;opacity:.85;align-self:center}
+h1{font-size:46px;line-height:1;margin:6px 0 4px;color:var(--lav);letter-spacing:1px}
+.sub{opacity:.85;margin:0 0 14px}
+.tabs{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px}
+.tabs button{background:#ffffff22;border:0;border-radius:10px 10px 0 0;padding:2px 11px;font-size:17px}
+.tabs button.on{background:var(--paper);color:#35345d;font-weight:700}
+.yr{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-family:Fraunces,serif;font-style:italic}
+.yr button{background:none;border:0;font-size:22px}
+.add{background:var(--pink);color:#4a1530;border:0;border-radius:24px;padding:6px 18px;font-weight:700;box-shadow:0 3px 0 #b84c72}
+.add:active{transform:translateY(2px);box-shadow:none}
+.entry{background:#ffffff14;border-radius:10px;padding:12px 14px;margin-bottom:14px;position:relative}
+.entry h3{margin:0;font-size:26px;color:var(--yel)}
+.entry .d{font-size:16px;opacity:.8}
+.entry p{margin:6px 0;white-space:pre-wrap;line-height:1.35}
+.acts{display:flex;gap:6px;position:absolute;top:8px;right:8px}
+.acts button{background:#0003;border:0;border-radius:8px;padding:0 9px;font-size:16px}
+.scrap{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
+.polaroid{background:#fff;padding:6px 6px 14px;border-radius:3px;box-shadow:0 4px 10px #0005;position:relative;width:120px}
+.polaroid img{width:100%;height:100px;object-fit:cover;display:block}
+.polaroid:before{content:"";position:absolute;top:-8px;left:30%;width:46px;height:16px;background:#ffc6dccc;transform:rotate(-4deg)}
+.stk{font-size:34px;filter:drop-shadow(0 2px 2px #0005)}
+.empty{opacity:.8;text-align:center;margin-top:40px}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:0;background:var(--paper);border:2px solid #7aa5e6;border-radius:6px;overflow:hidden}
+.dow{background:#fff;color:#3a78d8;text-align:center;font-weight:700;padding:2px 0}
+.cell{aspect-ratio:1;border:1px solid #7aa5e666;background:#fff;color:#2d3a5c;position:relative;padding:0;border-radius:0;overflow:hidden;text-align:left}
+.cell .n{position:absolute;top:2px;left:4px;font-weight:700;color:#3a78d8;z-index:2;text-shadow:0 0 3px #fff}
+.cell img{width:100%;height:100%;object-fit:cover;display:block}
+.cell .em{position:absolute;inset:0;display:grid;place-items:center;font-size:30px;background:#ffeaf3}
+.cell .t{position:absolute;bottom:0;left:0;right:0;background:#fffc;font-size:12px;padding:0 3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cell.today{outline:3px solid var(--pink);outline-offset:-3px}
+.cell:hover{filter:brightness(.95)}
+.big{font-size:90px;font-weight:700;color:#7ab0ff;line-height:.9}
+.modal{position:fixed;inset:0;background:#000a;display:none;align-items:center;justify-content:center;padding:12px;z-index:9}
+.modal.open{display:flex}
+.card{background:var(--paper);color:#35345d;border-radius:14px;padding:18px;width:min(560px,100%);max-height:94vh;overflow:auto}
+.card input,.card textarea{width:100%;font:inherit;border:2px dashed #c9b6f0;border-radius:10px;padding:6px 10px;background:#fff;color:#35345d;margin:4px 0 10px}
+.card textarea{min-height:130px;resize:vertical}
+.card label{font-weight:700}
+.stkbar{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px}
+.stkbar button{background:#fff;border:2px solid #eadcff;border-radius:10px;font-size:24px;padding:0 6px}
+.card .polaroid .x{position:absolute;top:-6px;right:-6px;background:#ff6b8b;color:#fff;border:0;border-radius:50%;width:22px;height:22px;line-height:20px;padding:0}
+.row{display:flex;gap:8px;justify-content:flex-end;margin-top:8px;flex-wrap:wrap}
+.ghost{background:#eee;border:0;border-radius:24px;padding:6px 16px;color:#35345d}
+.upl{display:inline-block;background:var(--lav);color:#2b2350;border-radius:24px;padding:4px 14px;cursor:pointer;font-weight:700}
+.toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#fff;color:#35345d;padding:6px 16px;border-radius:20px;display:none;z-index:20}
+@media(max-width:800px){.book{grid-template-columns:1fr}.pg.r{border-left:0;border-top:3px solid #0006}h1{font-size:36px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--yel);outline-offset:2px}
+</style></head>
+<body>
+<div class="book">
+  <section class="pg" id="left">
+    <div class="nav">
+      <button id="vJ" class="on">✿ Journal</button>
+      <button id="vC">☁ Calendar</button>
+      <span class="status" id="status">connecting…</span>
+    </div>
+    <h1>a year of hope<br>&amp; growth</h1>
+    <p class="sub" id="sub"></p>
+    <div id="leftBody"></div>
+  </section>
+  <section class="pg r" id="right">
+    <div class="tabs" id="tabs"></div>
+    <div class="yr"><button id="py" aria-label="Previous year">‹</button><span id="yl"></span><button id="ny" aria-label="Next year">›</button>
+      <button class="add" id="newBtn" style="margin-left:auto">+ New page</button></div>
+    <div id="rightBody"></div>
+  </section>
+</div>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true"><div class="card">
+  <h2 style="margin:0 0 6px;color:#7b5cc4" id="mt">New page</h2>
+  <label for="fd">Date</label><input type="date" id="fd">
+  <label for="ft">Title</label><input id="ft" placeholder="Today in a few words">
+  <label for="fb">Dear journal…</label><textarea id="fb" placeholder="Write anything you want to remember"></textarea>
+  <label>Scrapbook photos</label>
+  <div class="scrap" id="fp"></div>
+  <p><label class="upl">+ Add photos<input type="file" id="fu" accept="image/*" multiple hidden></label></p>
+  <label>Stickers (tap to add, tap again on page to remove)</label>
+  <div class="stkbar" id="sb"></div>
+  <div class="scrap" id="fs"></div>
+  <div class="row"><button class="ghost" id="cancel">Cancel</button><button class="add" id="save">Save page</button></div>
+</div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------- Supabase config ---------- */
+const SB_URL='https://rfaeyvxvzevilcubmcqa.supabase.co/rest/v1/';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJmYWV5dnh2emV2aWxjdWJtY3FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAzODM1NDgsImV4cCI6MjEwNTk1OTU0OH0.rIw80-hnYwJ2uzg4dyvRc9wX3N9NPLiMJFtCKlWqsUM';
+const TABLE='journal_entries';
+const H={apikey:SB_KEY,Authorization:'Bearer '+SB_KEY,'Content-Type':'application/json'};
+let online=false;
+async function api(method,qs='',body){
+  const r=await fetch(SB_URL+TABLE+qs,{method,headers:{...H,Prefer:'return=representation'},body:body?JSON.stringify(body):undefined});
+  if(!r.ok)throw new Error(await r.text());
+  return r.status===204?null:r.json();
+}
+/* local fallback so the journal still works if the table isn't ready */
+const LS='mini-journal-local';
+const loadLocal=()=>{try{return JSON.parse(localStorage.getItem(LS))||[]}catch(e){return[]}};
+const saveLocal=()=>{try{localStorage.setItem(LS,JSON.stringify(entries))}catch(e){toast('Local storage is full')}};
+
+/* ---------- state ---------- */
+const MONTHS=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+const STICKERS=['🌸','⭐','💖','🍓','☁️','🌙','🐱','🍀','✨','🎀','☕','🌈','🧸','🍰','📷','🕌'];
+let entries=[],view='J',now=new Date(),year=now.getFullYear(),month=now.getMonth();
+let draft=null;
+const $=id=>document.getElementById(id);
+const pad=n=>String(n).padStart(2,'0');
+const iso=(y,m,d)=>`${y}-${pad(m+1)}-${pad(d)}`;
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function toast(t){const e=$('toast');e.textContent=t;e.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>e.style.display='none',2400)}
+
+async function load(){
+  try{
+    entries=await api('GET','?select=*&order=entry_date.asc');
+    online=true;$('status').textContent='☁ synced with Supabase';
+  }catch(e){
+    online=false;entries=loadLocal();
+    $('status').textContent='⚠ offline mode (table not found)';
+    console.warn(e.message);
+  }
+  render();
+}
+const inMonth=()=>entries.filter(e=>e.entry_date&&e.entry_date.startsWith(`${year}-${pad(month+1)}`));
+
+/* ---------- rendering ---------- */
+function render(){
+  $('vJ').classList.toggle('on',view==='J');$('vC').classList.toggle('on',view==='C');
+  $('yl').textContent=year;
+  $('tabs').innerHTML=MONTHS.map((m,i)=>`<button class="${i===month?'on':''}" data-m="${i}">${m}</button>`).join('');
+  const list=inMonth();
+  $('sub').textContent=`${MONTHS[month]} ${year} · ${list.length} page${list.length===1?'':'s'}`;
+  view==='J'?renderJournal(list):renderCalendar(list);
+}
+function entryHTML(e){
+  const d=new Date(e.entry_date+'T00:00:00');
+  const ph=(e.photos||[]).map((p,i)=>`<div class="polaroid" style="transform:rotate(${[-3,2,-1.5,3][i%4]}deg)"><img src="${p}" alt="Scrapbook photo"></div>`).join('');
+  const st=(e.stickers||[]).map(s=>`<span class="stk">${s}</span>`).join('');
+  return `<article class="entry"><div class="acts"><button data-edit="${e.id}">Edit</button><button data-del="${e.id}">Delete</button></div>
+  <div class="d">${d.toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'})}</div>
+  <h3>${esc(e.title)||'Untitled'}</h3><p>${esc(e.body)}</p>
+  <div class="scrap">${ph}${st}</div></article>`;
+}
+function renderJournal(list){
+  const half=Math.ceil(list.length/2);
+  const L=list.slice(0,half),R=list.slice(half);
+  $('leftBody').innerHTML=L.map(entryHTML).join('')||'<p class="empty">No pages yet this month ✿<br>Tap “+ New page” to start.</p>';
+  $('rightBody').innerHTML=R.map(entryHTML).join('');
+}
+function renderCalendar(list){
+  $('leftBody').innerHTML=`<div class="big">${pad(month+1)}</div><p>Tap any day to write, add photos or stickers. Days with a page show a photo or sticker.</p>`;
+  const first=new Date(year,month,1).getDay(),days=new Date(year,month+1,0).getDate();
+  const t=new Date();let h=['SUN','MON','TUE','WED','THU','FRI','SAT'].map(d=>`<div class="dow">${d}</div>`).join('');
+  for(let i=0;i<first;i++)h+='<div class="cell" style="background:var(--paper)"></div>';
+  for(let d=1;d<=days;d++){
+    const k=iso(year,month,d),e=list.find(x=>x.entry_date===k);
+    let inner='';
+    if(e){inner=(e.photos&&e.photos[0])?`<img src="${e.photos[0]}" alt="">`:`<div class="em">${(e.stickers&&e.stickers[0])||'📖'}</div>`;if(e.title)inner+=`<span class="t">${esc(e.title)}</span>`}
+    const today=t.getFullYear()===year&&t.getMonth()===month&&t.getDate()===d;
+    h+=`<button class="cell${today?' today':''}" data-day="${k}" aria-label="${k}"><span class="n">${d}</span>${inner}</button>`;
+  }
+  $('rightBody').innerHTML=`<div class="cal">${h}</div>`;
+}
+
+/* ---------- editor ---------- */
+function openEditor(e,date){
+  draft=e?{...e,photos:[...(e.photos||[])],stickers:[...(e.stickers||[])]}:{id:null,entry_date:date||iso(year,month,now.getMonth()===month&&now.getFullYear()===year?now.getDate():1),title:'',body:'',photos:[],stickers:[]};
+  $('mt').textContent=e?'Edit page':'New page';
+  $('fd').value=draft.entry_date;$('ft').value=draft.title||'';$('fb').value=draft.body||'';
+  drawDraft();$('modal').classList.add('open');$('ft').focus();
+}
+function drawDraft(){
+  $('fp').innerHTML=draft.photos.map((p,i)=>`<div class="polaroid"><img src="${p}" alt=""><button class="x" data-rp="${i}" aria-label="Remove photo">×</button></div>`).join('');
+  $('fs').innerHTML=draft.stickers.map((s,i)=>`<button class="stk" style="background:none;border:0" data-rs="${i}" aria-label="Remove sticker">${s}</button>`).join('');
+}
+function shrink(file){return new Promise(res=>{
+  const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{
+    const max=520,s=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement('canvas');
+    c.width=im.width*s;c.height=im.height*s;c.getContext('2d').drawImage(im,0,0,c.width,c.height);res(c.toDataURL('image/jpeg',.72))};im.src=r.result};r.readAsDataURL(file)})}
+async function save(){
+  const row={entry_date:$('fd').value,title:$('ft').value.trim(),body:$('fb').value,photos:draft.photos,stickers:draft.stickers};
+  if(!row.entry_date){toast('Pick a date first');return}
+  try{
+    if(online){
+      if(draft.id){const r=await api('PATCH',`?id=eq.${draft.id}`,row);entries=entries.map(x=>x.id==draft.id?r[0]:x)}
+      else{const r=await api('POST','',row);entries.push(r[0])}
+    }else{
+      if(draft.id)entries=entries.map(x=>x.id==draft.id?{...x,...row}:x);else entries.push({...row,id:'l'+Date.now()});
+      saveLocal();
+    }
+    entries.sort((a,b)=>a.entry_date.localeCompare(b.entry_date));
+    const d=new Date(row.entry_date+'T00:00:00');year=d.getFullYear();month=d.getMonth();
+    $('modal').classList.remove('open');render();toast('Page saved ✿');
+  }catch(e){toast('Could not save: '+e.message.slice(0,80))}
+}
+async function del(id){
+  if(!confirm('Delete this page?'))return;
+  try{
+    if(online)await api('DELETE',`?id=eq.${id}`);
+    entries=entries.filter(x=>x.id!=id);if(!online)saveLocal();
+    render();toast('Page deleted');
+  }catch(e){toast('Could not delete: '+e.message.slice(0,80))}
+}
+
+/* ---------- events ---------- */
+$('vJ').onclick=()=>{view='J';render()};$('vC').onclick=()=>{view='C';render()};
+$('py').onclick=()=>{year--;render()};$('ny').onclick=()=>{year++;render()};
+$('newBtn').onclick=()=>openEditor(null);
+$('cancel').onclick=()=>$('modal').classList.remove('open');
+$('save').onclick=save;
+$('modal').addEventListener('click',e=>{if(e.target.id==='modal')$('modal').classList.remove('open')});
+$('fu').onchange=async e=>{for(const f of e.target.files)draft.photos.push(await shrink(f));e.target.value='';drawDraft()};
+$('sb').innerHTML=STICKERS.map(s=>`<button data-s="${s}" aria-label="Add sticker ${s}">${s}</button>`).join('');
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-m],[data-edit],[data-del],[data-day],[data-s],[data-rp],[data-rs]');if(!t)return;
+  const D=t.dataset;
+  if(D.m!==undefined){month=+D.m;render()}
+  else if(D.edit)openEditor(entries.find(x=>x.id==D.edit));
+  else if(D.del)del(D.del);
+  else if(D.day){const ex=entries.find(x=>x.entry_date===D.day);openEditor(ex||null,D.day)}
+  else if(D.s){draft.stickers.push(D.s);drawDraft()}
+  else if(D.rp!==undefined){draft.photos.splice(+D.rp,1);drawDraft()}
+  else if(D.rs!==undefined){draft.stickers.splice(+D.rs,1);drawDraft()}
+});
+load();
+</script></body></html>
